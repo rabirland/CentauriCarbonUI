@@ -7,6 +7,8 @@ namespace WebUI.Services;
 
 public class PrinterService
 {
+    private string? _printerUrl;
+
     private readonly SDCPClient _printerClient = new();
 
     private readonly Subject<PrinterStatus> _printerStatusSubject = new();
@@ -18,7 +20,15 @@ public class PrinterService
     /// </summary>
     public PrinterStatus? LastPrinterStatus => _lastPrinterStatus;
 
+    /// <summary>
+    /// Fired whenever a <see cref="CentauriCarbonStatusResponse"/> is received from the printer.
+    /// </summary>
     public IObservable<PrinterStatus> StatusReceived => _printerStatusSubject.AsObservable();
+
+    /// <summary>
+    /// The base URL for the printer or <see cref="string.Empty"/> when no printer is connected.
+    /// </summary>
+    public string PrinterUrl => _printerUrl ?? string.Empty;
 
     public PrinterService()
     {
@@ -34,9 +44,10 @@ public class PrinterService
             });
     }
 
-    public Task ConnectAsync()
+    public Task ConnectAsync(string url)
     {
-        return _printerClient.Connect("ws://192.168.1.59:3030/websocket");
+        _printerUrl = url;
+        return _printerClient.Connect($"ws://{_printerUrl}:3030/websocket");
     }
 
     /// <summary>

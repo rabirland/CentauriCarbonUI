@@ -1,0 +1,12 @@
+﻿@using CentauriCarbon.Dtos
+
+<div class="row fs-4">
+	<div class="col"><i class="bi bi-pen"></i> @PrinterStatus.TempOfNozzle.ToString("0.00") / @PrinterStatus.TempTargetNozzle.ToString("0") °C</div>
+	<div class="col text-center"><i class="bi bi-square"></i> @PrinterStatus.TempOfHotbed.ToString("0.00") / @PrinterStatus.TempTargetHotbed.ToString("0") °C</div>
+	<div class="col text-end"><i class="bi bi-box-seam"></i> @PrinterStatus.TempOfBox.ToString("0.00") °C</div>
+</div>
+
+@code {
+	[Parameter]
+	public required PrinterStatus PrinterStatus { get; set; }
+}

@@ -18,7 +18,7 @@ public partial class Home : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        await PrinterService.ConnectAsync();
+        await PrinterService.ConnectAsync("192.168.1.59");
         await PrinterService.SendStatusRequest();
     }
 

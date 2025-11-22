@@ -2,10 +2,18 @@
 
 <PageTitle>Elegoo Centauri Carbon</PageTitle>
 
-@if (_currentPrinterStatus?.PrintInfo != null)
+@if (_currentPrinterStatus != null)
 {
-    <div class="card">
-        <PrintProgress Status="_currentPrinterStatus.PrintInfo" />
+    <div class="card my-3">
+        <div class="card-body">
+            <PrintProgress PrinterBaseUrl="@PrinterService.PrinterUrl" Status="_currentPrinterStatus.PrintInfo" />
+        </div>
+    </div>
+
+    <div class="card my-3">
+        <div class="card-body">
+            <PrinterTemperatures PrinterStatus="_currentPrinterStatus" />
+        </div>
     </div>
 }
 else

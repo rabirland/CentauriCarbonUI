@@ -1,21 +1,36 @@
 ﻿@using CentauriCarbon.Dtos
-<div class="card-body">
 
-    <div class="row">
-        <div class="col">
-            <div>File: @Status.Filename</div>
-            <div>Layer: @Status.CurrentLayer / @Status.TotalLayer</div>
-            <div>Time: @Status.ElapsedTime.ToString(@"hh\:mm\:ss") / @Status.TotalTime.ToString(@"hh\:mm\:ss")</div>
-            <div>Progress: @Status.Progress.ToString("0.00")</div>
-        </div>
+<div class="row">
+    <div class="col-md-auto">
+        @if (string.IsNullOrEmpty(Status.TaskId) == false)
+        {
+            <img src="http://192.168.1.59/board-resource/history_image/@(Status.TaskId).png" />
+        }
+        else
+        {
+            <i class="bi bi-badge-cc-fill"></i>
+        }
 
-        <div class="col">
-        </div>
+    </div>
+    <div class="col">
+        <div class="my-2"><i class="bi bi-file-code"></i> @Status.Filename.ReplaceIfEmpty("-")</div>
+        <div class="my-2"><i class="bi bi-stack"></i> @Status.CurrentLayer / @Status.TotalLayer</div>
+        <div class="my-2"><i class="bi bi-clock-history"></i> @Status.ElapsedTime.ToString(@"hh\:mm\:ss") / @Status.TotalTime.ToString(@"hh\:mm\:ss")</div>
+
+            
     </div>
 
+    <div class="col text-end">
+        <h1 class="my-2">@Status.Progress.ToString("0.00")%</h1>
+
+        <div class="my-2"><i class="bi bi-stopwatch-fill"></i> @((Status.TotalTime - Status.ElapsedTime).ToString(@"hh\:mm\:ss"))</div>
+    </div>
 </div>
 
 @code {
+    [Parameter]
+    public required string PrinterBaseUrl { get; set; }
+
     [Parameter]
     public required PrintInfo Status { get; set; }
 }
