@@ -1,19 +1,33 @@
-﻿using Microsoft.AspNetCore.Components;
-using System.Net.WebSockets;
+﻿using CentauriCarbon.Dtos;
+using Microsoft.AspNetCore.Components;
 using WebUI.Services;
 
 namespace WebUI.Pages;
 
-public partial class Home
+public partial class Home : IDisposable
 {
+    private PrinterStatus? _currentPrinterStatus;
+
     [Inject]
     public required PrinterService PrinterService { get; set; }
 
-    [Inject]
-    public required ClientWebSocket ws { get; set; }
+    public void Dispose()
+    {
+
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        await ws.ConnectAsync(new Uri("ws://192.168.1.59:3030/websocket"), default);
+        await PrinterService.ConnectAsync();
+        await PrinterService.SendStatusRequest();
+    }
+
+    protected override void OnParametersSet()
+    {
+        PrinterService.StatusReceived.Subscribe(x =>
+        {
+            _currentPrinterStatus = x;
+            StateHasChanged();
+        });
     }
 }

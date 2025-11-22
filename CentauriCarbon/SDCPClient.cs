@@ -35,6 +35,8 @@ public class SDCPClient
 
             if (_websocket.State == WebSocketState.Open)
             {
+                // Run in "background"
+                Receiver();
             }
         }
         catch (Exception ex)
@@ -54,7 +56,7 @@ public class SDCPClient
         await _websocket.SendAsync(bytes, WebSocketMessageType.Text, true, default);
     }
 
-    private void Receiver()
+    private async Task Receiver()
     {
         var responseBuilder = new StringBuilder();
         var receiveBuffer = new byte[4096];
@@ -66,7 +68,7 @@ public class SDCPClient
         while (_websocket.State == WebSocketState.Open)
         {
             stream.SetLength(receiveBuffer.Length);
-            var result = _websocket.ReceiveAsync(receiveBuffer, tokenSource.Token).Result;
+            var result = await _websocket.ReceiveAsync(receiveBuffer, tokenSource.Token);
             stream.Position = 0;
             stream.SetLength(result.Count);
 
@@ -98,6 +100,9 @@ public class SDCPClient
                     responseBuilder.Append(character);
                 }
             }
+
+            // Allow the task system to do any other job
+            await Task.Delay(300);
         }
     }
 

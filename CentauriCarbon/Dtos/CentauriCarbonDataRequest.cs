@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace CentauriCarbon.Dtos;
+﻿namespace CentauriCarbon.Dtos;
 
 /// <summary>
 /// A wrapper for the command requests and responses.

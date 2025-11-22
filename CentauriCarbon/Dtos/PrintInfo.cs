@@ -1,4 +1,6 @@
-﻿namespace CentauriCarbon.Dtos;
+﻿using System.Text.Json.Serialization;
+
+namespace CentauriCarbon.Dtos;
 
 public class PrintInfo
 {
@@ -28,4 +30,10 @@ public class PrintInfo
     /// TODO: Maybe GCode commands??
     /// </summary>
     public double TotalTicks { get; set; }
+
+    [JsonIgnore]
+    public TimeSpan ElapsedTime => TimeSpan.FromSeconds(CurrentTicks);
+
+    [JsonIgnore]
+    public TimeSpan TotalTime => TimeSpan.FromSeconds(TotalTicks);
 }

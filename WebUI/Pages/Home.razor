@@ -2,9 +2,13 @@
 
 <PageTitle>Elegoo Centauri Carbon</PageTitle>
 
-@if (PrinterService.LastPrinterStatus?.PrintInfo != null)
+@if (_currentPrinterStatus?.PrintInfo != null)
 {
-    <PrintProgress Status="PrinterService.LastPrinterStatus?.PrintInfo" />
+    <div class="card">
+        <PrintProgress Status="_currentPrinterStatus.PrintInfo" />
+    </div>
 }
-
-Welcome to your new app.
+else
+{
+    <span class="alert alert-warning">No status response is available from the printer yet...</span>
+}

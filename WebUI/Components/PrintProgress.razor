@@ -1,9 +1,18 @@
 ﻿@using CentauriCarbon.Dtos
-<div class="card">
-    <div class="card-header">Print Status</div>
-    <div class="card-body">
+<div class="card-body">
 
+    <div class="row">
+        <div class="col">
+            <div>File: @Status.Filename</div>
+            <div>Layer: @Status.CurrentLayer / @Status.TotalLayer</div>
+            <div>Time: @Status.ElapsedTime.ToString(@"hh\:mm\:ss") / @Status.TotalTime.ToString(@"hh\:mm\:ss")</div>
+            <div>Progress: @Status.Progress.ToString("0.00")</div>
+        </div>
+
+        <div class="col">
+        </div>
     </div>
+
 </div>
 
 @code {
