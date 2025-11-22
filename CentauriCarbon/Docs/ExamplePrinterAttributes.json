@@ -1,0 +1,36 @@
+{
+  "Attributes": {
+    "Name": "FDM Printer",
+    "MachineName": "REFERENCE",
+    "BrandName": "CHITU",
+    "ProtocolVersion": "V3.0.0",
+    "FirmwareVersion": "V0.0.0",
+    "XYZsize": "218.88x128.88x220",
+    "MainboardIP": "192.168.1.223",
+    "MainboardMAC": "40:f4:c9:9c:79:ed",
+    "MainboardID": "1c5112910147017000002c0000000000",
+    "SDCPStatus": 0,
+    "MaximumCloudSDCPSercicesAllowed": 0,
+    "NumberOfCloudSDCPServicesConnected": 0,
+    "NumberOfVideoStreamConnected": 0,
+    "MaximumVideoStreamAllowed": 4,
+    "NetworkStatus": "wlan",
+    "UsbDiskStatus": 1,
+    "Capabilities": [ "FILE_TRANSFER", "PRINT_CONTROL", "VIDEO_STREAM" ],
+    "SupportFileType": [ "gcode" ],
+    "DevicesStatus": {
+      "SgStatus": 1,
+      "ZMotorStatus": 1,
+      "XMotorStatus": 1,
+      "YMotorStatus": 1
+    },
+    "CameraStatus": 1,
+    "RemainingMemory": 6333644800,
+    "TLPNoCapPos": 0,
+    "TLPStartCapPos": 0,
+    "TLPInterLayers": 0
+  },
+  "MainboardID": "1c5112910147017000002c0000000000",
+  "TimeStamp": 1743715087,
+  "Topic": "sdcp/attributes/1c5112910147017000002c0000000000"
+}

@@ -1,0 +1,10 @@
+﻿@page "/"
+
+<PageTitle>Elegoo Centauri Carbon</PageTitle>
+
+@if (PrinterService.LastPrinterStatus?.PrintInfo != null)
+{
+    <PrintProgress Status="PrinterService.LastPrinterStatus?.PrintInfo" />
+}
+
+Welcome to your new app.

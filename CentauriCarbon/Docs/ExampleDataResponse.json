@@ -1,0 +1,11 @@
+{
+  "Id": "979d4C788A4a78bC777A870F1A02867A",
+  "Data": {
+    "Cmd": 0,
+    "Data": { "Ack": 0 },
+    "RequestID": "7ioip06myeemwh8bbm9x9k963b5s269r",
+    "MainboardID": "1c5112910147017000002c0000000000",
+    "TimeStamp": 1743708982
+  },
+  "Topic": "sdcp/response/1c5112910147017000002c0000000000"
+}
