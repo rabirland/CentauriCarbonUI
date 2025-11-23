@@ -1,0 +1,23 @@
+﻿@using CentauriCarbon.Models
+
+@if(PrinterState == PrinterState.Idle)
+{
+	<span class="alert alert-info alert-short">Idle...</span>
+}
+else if (PrinterState == PrinterState.Printing)
+{
+	<span class="alert alert-success alert-short">
+		<span class="spinner-border spinner-border-sm" role="status">
+		</span>
+		<span>Printing</span>
+	</span>
+}
+else
+{
+	<span class="alert alert-danger alert-short">-= UNKNOWN PRINTER STATE: @((int)PrinterState) =-</span>
+}
+
+@code {
+	[Parameter]
+	public PrinterState PrinterState { get; set; }
+}

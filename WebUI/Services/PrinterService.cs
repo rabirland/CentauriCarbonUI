@@ -23,7 +23,12 @@ public class PrinterService
     /// <summary>
     /// Fired whenever a <see cref="StatusResponseParameter"/> is received from the printer.
     /// </summary>
-    public IObservable<PrinterStatusResponseParameter> StatusReceived => _printerStatusSubject.AsObservable();
+    public IObservable<PrinterStatusResponseParameter> StatusResponse => _printerStatusSubject.AsObservable();
+
+    /// <summary>
+    /// Fired whenever the printer sends a <see cref="CommandCodes.SetVideoEnabled"/> response.
+    /// </summary>
+    public IObservable<SetVideoResponseParameter> SetVideoResponse => _printerClient.Messages.OfType<SetVideoResponseParameter>();
 
     /// <summary>
     /// The base URL for the printer or <see cref="string.Empty"/> when no printer is connected.
@@ -59,6 +64,19 @@ public class PrinterService
             Guid.NewGuid().ToString(),
             CommandCodes.GetPrinterStatus,
             new object());
+
+        await _printerClient.SendCommand(request);
+    }
+
+    /// <summary>
+    /// Sends a command to the printer to begin reporting the printer status.
+    /// </summary>
+    public async Task SendEnableVideoCommand()
+    {
+        var request = new CentauriCarbonCommand(
+            Guid.NewGuid().ToString(),
+            CommandCodes.SetVideoEnabled,
+            new SetVideoEnabledCommandParameter(1));
 
         await _printerClient.SendCommand(request);
     }

@@ -1,4 +1,5 @@
 ﻿using CentauriCarbon.Extensions;
+using System.Text.Json.Serialization;
 
 namespace CentauriCarbon.Dtos;
 
@@ -28,5 +29,9 @@ public class CentauriCarbonCommand
     /// <summary>
     /// Wrapper for the internal parameters of a centauri carbon request.
     /// </summary>
-    public record CommandDataData(int Cmd, object CommandParameters, string RequestId, string MainboardId, long Timestamp, int From);
+    public record CommandDataData(int Cmd, object CommandParameters, string RequestId, string MainboardId, long Timestamp, int From)
+    {
+        [JsonPropertyName("Data")]
+        public object CommandParameters { get; init; } = CommandParameters;
+    }
 }

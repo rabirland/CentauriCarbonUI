@@ -222,6 +222,7 @@ public class SDCPClient
             CommandCodes.GetPrinterAttributes => SDCPJsonSerializer.Deserialize<AcknowledgeResponseParameter>(responseParameterNode),
             CommandCodes.GetPrintHistoryList => SDCPJsonSerializer.Deserialize<HistoryListResponseParameter>(responseParameterNode),
             CommandCodes.GetFileList => SDCPJsonSerializer.Deserialize<FileListResponseParameter>(responseParameterNode),
+            CommandCodes.SetVideoEnabled => SDCPJsonSerializer.Deserialize<SetVideoResponseParameter>(responseParameterNode),
             _ => null,
         };
 

@@ -1,25 +1,58 @@
 ﻿@page "/"
 
 <PageTitle>Elegoo Centauri Carbon</PageTitle>
+<div class="row">
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header">
+                Status
+                @if (_currentPrinterStatus != null)
+                {
+                    <PrinterStateBubble PrinterState="_currentPrinterStatus.GetPrinterState()" />
+                }
+            </div>
 
-<div class="card">
-    <div class="card-header">
-        Elegoo Centauri Carbon <span class="alert alert-info alert-short">Idle...</span>
+            <div class="card-body">
+                @if (_currentPrinterStatus != null)
+                {
+                    <PrintProgress PrinterBaseUrl="@PrinterService.PrinterUrl" Status="_currentPrinterStatus.PrintInfo" />
+                }
+                else
+                {
+                    <span class="alert alert-warning">No status response is available from the printer yet...</span>
+                }
+            </div>
+        </div>
     </div>
 
-    <div class="card-body">
-        @if (_currentPrinterStatus != null)
-        {
-            <PrintProgress PrinterBaseUrl="@PrinterService.PrinterUrl" Status="_currentPrinterStatus.PrintInfo" />
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Monitoring
+            </div>
 
-            <hr>
+            @if (string.IsNullOrEmpty(_videoUrl) == false)
+            {
+                <img src="http://@_videoUrl" class="card-img-top" alt="Camera Feed">
+            }
 
-            <PrinterTemperatures PrinterStatus="_currentPrinterStatus" />
-        }
-        else
-        {
-            <span class="alert alert-warning">No status response is available from the printer yet...</span>
-        }
+            <div class="card-body">
+                @if (_currentPrinterStatus != null)
+                {
+                    <PrinterTemperatures PrinterStatus="_currentPrinterStatus" />
+                }
+            </div>
+
+            <div class="card-img-bottom">
+                @if (_currentPrinterStatus != null)
+                {
+                    <PrintheadPosition X="_currentPrinterStatus.XCoordinate" Y="_currentPrinterStatus.YCoordinate" Z="_currentPrinterStatus.ZCoordinate" />
+                }
+            </div>
+        </div>
     </div>
 </div>
+
+
+
 

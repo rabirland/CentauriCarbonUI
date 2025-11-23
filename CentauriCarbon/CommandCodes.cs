@@ -8,4 +8,5 @@ public static class CommandCodes
     public const int GetPrintHistoryList = 320;
     public const int GetFileList = 258;
     public const int SetFanSpeed = 403;
+    public const int SetVideoEnabled = 386;
 }
