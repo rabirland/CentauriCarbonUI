@@ -1,6 +1,6 @@
 ﻿namespace CentauriCarbon.Dtos;
 
-public class FanSpeedRequestData : IPrinterRequestData
+public class SetFanSpeedCommandParameter
 {
     public TargetFanSpeeds TargetFanSpeed { get; set; } = new();
 

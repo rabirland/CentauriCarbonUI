@@ -10,9 +10,21 @@ namespace CentauriCarbon;
 public class SDCPClient
 {
     private readonly ClientWebSocket _websocket;
-    private readonly Subject<IPrinterResponse> _printerMessages = new();
 
-    public IObservable<IPrinterResponse> Messages => _printerMessages.AsObservable();
+    /// <summary>
+    /// Subject to report the complete response from the printer.
+    /// </summary>
+    private readonly Subject<CentauriCarbonResponse> _printerResponses = new();
+
+    /// <summary>
+    /// Observable to receive only the response parameters sent by the printer.
+    /// </summary>
+    public IObservable<object> Messages => _printerResponses.Select(x => x.ResponseParameter);
+
+    /// <summary>
+    /// Observable to receive each full response from the printer.
+    /// </summary>
+    public IObservable<CentauriCarbonResponse> Responses => _printerResponses.AsObservable(); 
 
     public bool IsConnected => _websocket.State == WebSocketState.Open;
 
@@ -36,7 +48,7 @@ public class SDCPClient
             if (_websocket.State == WebSocketState.Open)
             {
                 // Run in "background"
-                Receiver();
+                ReceiverTask();
             }
         }
         catch (Exception ex)
@@ -48,7 +60,7 @@ public class SDCPClient
     /// <summary>
     /// Sends a request to the printer.
     /// </summary>
-    public async Task SendRequest(IPrinterRequest request)
+    public async Task SendCommand(CentauriCarbonCommand request)
     {
         var json = SDCPJsonSerializer.Serialize(request);
         var bytes = Encoding.UTF8.GetBytes(json);
@@ -56,7 +68,7 @@ public class SDCPClient
         await _websocket.SendAsync(bytes, WebSocketMessageType.Text, true, default);
     }
 
-    private async Task Receiver()
+    private async Task ReceiverTask()
     {
         var responseBuilder = new StringBuilder();
         var receiveBuffer = new byte[4096];
@@ -67,109 +79,159 @@ public class SDCPClient
 
         while (_websocket.State == WebSocketState.Open)
         {
-            stream.SetLength(receiveBuffer.Length);
-            var result = await _websocket.ReceiveAsync(receiveBuffer, tokenSource.Token);
-            stream.Position = 0;
-            stream.SetLength(result.Count);
-
-            while (streamReader.EndOfStream == false)
+            try
             {
-                var character = (char)streamReader.Read();
+                stream.SetLength(receiveBuffer.Length);
+                var result = await _websocket.ReceiveAsync(receiveBuffer, tokenSource.Token);
+                stream.Position = 0;
+                stream.SetLength(result.Count);
 
-                if (character == '{')
+                while (streamReader.EndOfStream == false)
                 {
-                    level++;
-                }
-                else if (character == '}')
-                {
-                    level = Math.Max(0, level - 1);
-                }
+                    var character = (char)streamReader.Read();
 
-                if (level == 0)
-                {
-                    if (responseBuilder.Length > 0)
+                    if (character == '{')
                     {
-                        // Add the closing '}'
+                        level++;
+                    }
+                    else if (character == '}')
+                    {
+                        level = Math.Max(0, level - 1);
+                    }
+
+                    if (level == 0)
+                    {
+                        if (responseBuilder.Length > 0)
+                        {
+                            // Add the closing '}'
+                            responseBuilder.Append(character);
+                            OnMessage(responseBuilder.ToString());
+                            responseBuilder.Clear();
+                        }
+                    }
+                    else
+                    {
                         responseBuilder.Append(character);
-                        OnMessage(responseBuilder.ToString());
-                        responseBuilder.Clear();
                     }
                 }
-                else
-                {
-                    responseBuilder.Append(character);
-                }
-            }
 
-            // Allow the task system to do any other job
-            await Task.Delay(300);
+                // Allow the task system to do any other job
+                await Task.Delay(100);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"""
+                    ERROR During printer response processing
+                    {ex}
+                    """);
+            }
         }
     }
 
     private void OnMessage(string json)
     {
-        var node = SDCPJsonSerializer.Deserialize<JsonNode>(json);
+        var topLevelNode = SDCPJsonSerializer.Deserialize<JsonNode>(json);
 
-        if (node == null)
+        if (topLevelNode == null)
         {
-            return;
+            throw new Exception($"""
+                Could not parse the SDCP response: {json}
+                """);
         }
 
-        if (node["Status"] != null)
+        var response = SDCPJsonSerializer.Deserialize<CentauriCarbonResponse>(topLevelNode);
+
+        if (response == null)
         {
-            var report = SDCPJsonSerializer.Deserialize<CentauriCarbonStatusResponse>(node);
+            throw new Exception($"""
+                Could not deserialize the SDCP response:
+                {json}
+                """);
+        }
+
+        if (topLevelNode["Status"] is JsonNode statusNode and not null)
+        {
+            var report = SDCPJsonSerializer.Deserialize<PrinterStatusResponseParameter>(statusNode);
 
             if (report != null)
             {
-                _printerMessages.OnNext(report);
+                response.ResponseParameter = report;
             }
         }
-        else if (node["Attributes"] != null)
+        else if (topLevelNode["Attributes"] is JsonNode attributeNode and not null)
         {
-            var response = SDCPJsonSerializer.Deserialize<CentauriCarbonAttributesResponse>(json);
+            var attributes = SDCPJsonSerializer.Deserialize<PrinterAttributesResponseParameter>(attributeNode);
 
-            if (response != null)
+            if (attributes != null)
             {
-                _printerMessages.OnNext(response);
+                response.ResponseParameter = attributes;
             }
         }
-        else if (node["Id"] != null)
+        else if (topLevelNode["Id"] != null && topLevelNode["Data"] is JsonNode dataNode and not null)
         {
-            var response = ParseDataResponse(node);
+            var responseParameters = ParseDataResponse(dataNode);
 
-            if (response != null)
+            if (responseParameters != null)
             {
-                _printerMessages.OnNext(response);
+                response.ResponseParameter = responseParameters;
             }
         }
         else
         {
-            Console.WriteLine("Unknown message");
-            Console.WriteLine(json);
+            throw new Exception($"""
+                Unknown response variant:
+                {json}
+                """);
         }
+
+        _printerResponses.OnNext(response);
     }
 
-    private IPrinterResponse? ParseDataResponse(JsonNode node)
+    private object ParseDataResponse(JsonNode? dataNode)
     {
-        if (node["Id"] == null)
+        if (dataNode == null)
         {
-            return null;
+            throw new Exception("""
+                Unknown response parameter type.
+                Expected RESPONSE[Data] to be not null.
+                """);
         }
 
-        var cmdCode = node["Data"]?["Cmd"]?.GetValue<int>();
+        var cmdCode = dataNode["Cmd"]?.GetValue<int>();
         if (cmdCode == null)
         {
-            return null;
+            throw new Exception("""
+                Unknown response command code.
+                Can not parse integer from RESPONSE[Data][Cmd].
+                """);
         }
 
-        IPrinterResponse? ret = cmdCode switch
+        var responseParameterNode = dataNode["Data"];
+
+        if (responseParameterNode == null)
         {
-            CommandCodes.GetPrinterStatus => SDCPJsonSerializer.Deserialize<CentauriCarbonDataResponse<AckResponseData>>(node),
-            CommandCodes.GetPrinterAttributes => SDCPJsonSerializer.Deserialize<CentauriCarbonDataResponse<AckResponseData>>(node),
-            CommandCodes.GetPrintHistoryList => SDCPJsonSerializer.Deserialize<CentauriCarbonDataResponse<HistoryListResponseData>>(node),
-            CommandCodes.GetFileList => SDCPJsonSerializer.Deserialize<CentauriCarbonDataResponse<FileListResponseData>>(node),
+            throw new Exception("""
+                Empty response parameter.
+                Expected RESPONSE[Data][Data] to be not null.
+                """);
+        }
+
+        object? ret = cmdCode switch
+        {
+            CommandCodes.GetPrinterStatus => SDCPJsonSerializer.Deserialize<AcknowledgeResponseParameter>(responseParameterNode),
+            CommandCodes.GetPrinterAttributes => SDCPJsonSerializer.Deserialize<AcknowledgeResponseParameter>(responseParameterNode),
+            CommandCodes.GetPrintHistoryList => SDCPJsonSerializer.Deserialize<HistoryListResponseParameter>(responseParameterNode),
+            CommandCodes.GetFileList => SDCPJsonSerializer.Deserialize<FileListResponseParameter>(responseParameterNode),
             _ => null,
         };
+
+        if (ret == null)
+        {
+            throw new Exception($"""
+                Could not parse response parameters.
+                {responseParameterNode}
+                """);
+        }
 
         return ret;
     }

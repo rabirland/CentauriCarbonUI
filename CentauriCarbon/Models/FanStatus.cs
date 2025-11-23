@@ -1,4 +1,4 @@
-﻿namespace CentauriCarbon.Dtos;
+﻿namespace CentauriCarbon.Models;
 
 /// <summary>
 /// The status report of the fans.

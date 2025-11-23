@@ -2,21 +2,24 @@
 
 <PageTitle>Elegoo Centauri Carbon</PageTitle>
 
-@if (_currentPrinterStatus != null)
-{
-    <div class="card my-3">
-        <div class="card-body">
-            <PrintProgress PrinterBaseUrl="@PrinterService.PrinterUrl" Status="_currentPrinterStatus.PrintInfo" />
-        </div>
+<div class="card">
+    <div class="card-header">
+        Elegoo Centauri Carbon <span class="alert alert-info alert-short">Idle...</span>
     </div>
 
-    <div class="card my-3">
-        <div class="card-body">
+    <div class="card-body">
+        @if (_currentPrinterStatus != null)
+        {
+            <PrintProgress PrinterBaseUrl="@PrinterService.PrinterUrl" Status="_currentPrinterStatus.PrintInfo" />
+
+            <hr>
+
             <PrinterTemperatures PrinterStatus="_currentPrinterStatus" />
-        </div>
+        }
+        else
+        {
+            <span class="alert alert-warning">No status response is available from the printer yet...</span>
+        }
     </div>
-}
-else
-{
-    <span class="alert alert-warning">No status response is available from the printer yet...</span>
-}
+</div>
+

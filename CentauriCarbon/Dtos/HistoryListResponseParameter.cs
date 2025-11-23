@@ -1,6 +1,6 @@
 ﻿namespace CentauriCarbon.Dtos;
 
-public class HistoryListResponseData : IPrinterResponseData
+public class HistoryListResponseParameter
 {
     public int Ack { get; set; }
 

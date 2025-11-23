@@ -6,7 +6,7 @@ namespace WebUI.Pages;
 
 public partial class Home : IDisposable
 {
-    private PrinterStatus? _currentPrinterStatus;
+    private PrinterStatusResponseParameter? _currentPrinterStatus;
 
     [Inject]
     public required PrinterService PrinterService { get; set; }
@@ -19,7 +19,7 @@ public partial class Home : IDisposable
     protected override async Task OnInitializedAsync()
     {
         await PrinterService.ConnectAsync("192.168.1.59");
-        await PrinterService.SendStatusRequest();
+        await PrinterService.SendReportStatusCommand();
     }
 
     protected override void OnParametersSet()

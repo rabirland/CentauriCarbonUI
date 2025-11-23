@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CentauriCarbon.Dtos;
+namespace CentauriCarbon.Models;
 
 public class PrintInfo
 {

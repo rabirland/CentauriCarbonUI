@@ -1,6 +1,6 @@
 ﻿namespace CentauriCarbon.Dtos;
 
-public class AxisRequestData : IPrinterRequestData
+public class AxisCommandParameter
 {
     public string Axis { get; set; } = string.Empty;
 }

@@ -1,6 +1,6 @@
 ﻿namespace CentauriCarbon.Dtos;
 
-public class PrinterAttributes
+public class PrinterAttributesResponseParameter
 {
     public string Name { get; set; } = string.Empty;
     public string MachineName { get; set; } = string.Empty;

@@ -1,6 +1,6 @@
 ﻿namespace CentauriCarbon.Dtos;
 
-public class AckResponseData : IPrinterResponseData
+public class AcknowledgeResponseParameter
 {
     public int Ack { get; set; }
 }

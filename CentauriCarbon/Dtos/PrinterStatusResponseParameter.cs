@@ -1,9 +1,11 @@
-﻿namespace CentauriCarbon.Dtos;
+﻿using CentauriCarbon.Models;
+
+namespace CentauriCarbon.Dtos;
 
 /// <summary>
 /// The status report of the Centauri Carbon.
 /// </summary>
-public class PrinterStatus
+public class PrinterStatusResponseParameter
 {
     /// <summary>
     /// The current X Y Z coordinate of the print head, formatted as 0.00,0.00,0.00

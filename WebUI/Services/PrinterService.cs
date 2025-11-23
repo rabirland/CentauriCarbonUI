@@ -11,19 +11,19 @@ public class PrinterService
 
     private readonly SDCPClient _printerClient = new();
 
-    private readonly Subject<PrinterStatus> _printerStatusSubject = new();
+    private readonly Subject<PrinterStatusResponseParameter> _printerStatusSubject = new();
 
-    private PrinterStatus? _lastPrinterStatus;
-
-    /// <summary>
-    /// The last message of type <see cref="CentauriCarbonStatusResponse"/> sent by the printer.
-    /// </summary>
-    public PrinterStatus? LastPrinterStatus => _lastPrinterStatus;
+    private PrinterStatusResponseParameter? _lastPrinterStatus;
 
     /// <summary>
-    /// Fired whenever a <see cref="CentauriCarbonStatusResponse"/> is received from the printer.
+    /// The last message of type <see cref="StatusResponseParameter"/> sent by the printer.
     /// </summary>
-    public IObservable<PrinterStatus> StatusReceived => _printerStatusSubject.AsObservable();
+    public PrinterStatusResponseParameter? LastPrinterStatus => _lastPrinterStatus;
+
+    /// <summary>
+    /// Fired whenever a <see cref="StatusResponseParameter"/> is received from the printer.
+    /// </summary>
+    public IObservable<PrinterStatusResponseParameter> StatusReceived => _printerStatusSubject.AsObservable();
 
     /// <summary>
     /// The base URL for the printer or <see cref="string.Empty"/> when no printer is connected.
@@ -33,12 +33,12 @@ public class PrinterService
     public PrinterService()
     {
         _printerClient.Messages
-            .OfType<CentauriCarbonStatusResponse>()
+            .OfType<PrinterStatusResponseParameter>()
             .Subscribe(response =>
             {
-                if (response.Status != null)
+                if (response != null)
                 {
-                    _lastPrinterStatus = response.Status;
+                    _lastPrinterStatus = response;
                     _printerStatusSubject.OnNext(_lastPrinterStatus);
                 }
             });
@@ -51,23 +51,15 @@ public class PrinterService
     }
 
     /// <summary>
-    /// Sends a request to the printer to begin reporting the printer status.
+    /// Sends a command to the printer to begin reporting the printer status.
     /// </summary>
-    public async Task SendStatusRequest()
+    public async Task SendReportStatusCommand()
     {
-        var requestData = new RequestData<EmptyRequestData>()
-        {
-            RequestId = RequestId.NewRequestId(),
-            From = 1,
-            Cmd = CommandCodes.GetPrinterStatus,
-            Data = new EmptyRequestData(),
-        };
+        var request = new CentauriCarbonCommand(
+            Guid.NewGuid().ToString(),
+            CommandCodes.GetPrinterStatus,
+            new object());
 
-        var request = new CentauriCarbonDataRequest<EmptyRequestData>()
-        {
-            Data = requestData,
-        };
-
-        await _printerClient.SendRequest(request);
+        await _printerClient.SendCommand(request);
     }
 }
