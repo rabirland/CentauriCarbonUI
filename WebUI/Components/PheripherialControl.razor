@@ -1,0 +1,148 @@
+﻿@using CentauriCarbon.Models
+@using WebUI.Services
+<div class="row">
+	<div class="col"><i class="bi bi-fan"></i> Part cooler</div>
+	<div class="col"><i class="bi bi-fan"></i> Auxiliary</div>
+	<div class="col"><i class="bi bi-fan"></i> Case</div>
+	<div class="col"><i class="bi bi-lightbulb-fill"></i> Light</div>
+</div>
+<div class="row">
+	<div class="col">
+		<div class="input-group input-group-sm">
+			<span class="btn btn-outline-secondary" @onclick="DecreasePartCoolerFan">-</span>
+			<input class="form-control" type="number" value="@FanStatus.ModelFan" @onchange="ModelFanInputChange" />
+			<span class="btn btn-outline-secondary" @onclick="IncreasePartCoolerFan">+</span>
+		</div>
+		
+	</div>
+
+	<div class="col">
+		<div class="input-group input-group-sm">
+			<span class="btn btn-outline-secondary" @onclick="DecreaseAuxiliaryFan">-</span>
+			<input class="form-control" type="number" value="@FanStatus.AuxiliaryFan" @onchange="AuxiliaryFanInputChange" />
+			<span class="btn btn-outline-secondary" @onclick="IncreaseAuxiliaryFan">+</span>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="input-group input-group-sm">
+			<span class="btn btn-outline-secondary" @onclick="DecreaseCaseFan">-</span>
+			<input class="form-control" type="number" value="@FanStatus.BoxFan" @onchange="CaseFanInputChange" />
+			<span class="btn btn-outline-secondary" @onclick="IncreaseCaseFan">+</span>
+		</div>
+	</div>
+
+	<div class="col">
+		<input class="form-control" type="number" />
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public required FanStatus FanStatus { get; set; }
+
+	[Inject]
+	public required PrinterService PrinterService { get; set; }
+
+	private Task DecreasePartCoolerFan()
+	{
+		var value = FanStatus.ModelFan >= 10
+			? FanStatus.ModelFan - 10
+			: 0;
+
+		return SetPartCoolerFan(value);
+	}
+
+	private Task IncreasePartCoolerFan()
+	{
+		var value = FanStatus.ModelFan <= 90
+			? FanStatus.ModelFan + 10
+			: 100;
+
+		return SetPartCoolerFan(value);
+	}
+
+	private Task DecreaseAuxiliaryFan()
+	{
+		var value = FanStatus.AuxiliaryFan >= 10
+			? FanStatus.AuxiliaryFan - 10
+			: 0;
+
+		return SetAuxiliaryFan(value);
+	}
+
+	private Task IncreaseAuxiliaryFan()
+	{
+		var value = FanStatus.AuxiliaryFan <= 90
+			? FanStatus.AuxiliaryFan + 10
+			: 100;
+
+		return SetAuxiliaryFan(value);
+	}
+
+	private Task DecreaseCaseFan()
+	{
+		var value = FanStatus.BoxFan >= 10
+			? FanStatus.BoxFan - 10
+			: 0;
+
+		return SetCaseFan(value);
+	}
+
+	private Task IncreaseCaseFan()
+	{
+		var value = FanStatus.BoxFan <= 90
+			? FanStatus.BoxFan + 10
+			: 100;
+
+		return SetCaseFan(value);
+	}
+
+	private Task SetPartCoolerFan(uint newValue)
+	{
+
+		return PrinterService.SetFanSpeed(newValue, FanStatus.AuxiliaryFan, FanStatus.BoxFan);
+	}
+
+	private Task SetAuxiliaryFan(uint newValue)
+	{
+
+		return PrinterService.SetFanSpeed(FanStatus.ModelFan, newValue, FanStatus.BoxFan);
+	}
+
+	private Task SetCaseFan(uint newValue)
+	{
+
+		return PrinterService.SetFanSpeed(FanStatus.ModelFan, FanStatus.AuxiliaryFan, newValue);
+	}
+
+	private Task ModelFanInputChange(ChangeEventArgs e)
+	{
+		if (uint.TryParse(e.Value?.ToString(), out var value))
+		{
+			return SetPartCoolerFan(value);
+		}
+
+		return Task.CompletedTask;
+	}
+
+	private Task AuxiliaryFanInputChange(ChangeEventArgs e)
+	{
+		if (uint.TryParse(e.Value?.ToString(), out var value))
+		{
+			return SetAuxiliaryFan(value);
+		}
+
+		return Task.CompletedTask;
+	}
+
+	private Task CaseFanInputChange(ChangeEventArgs e)
+	{
+		if (uint.TryParse(e.Value?.ToString(), out var value))
+		{
+			return SetCaseFan(value);
+		}
+
+		return Task.CompletedTask;
+	}
+}

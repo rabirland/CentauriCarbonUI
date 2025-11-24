@@ -86,9 +86,11 @@ public class SDCPClient
                 stream.Position = 0;
                 stream.SetLength(result.Count);
 
-                while (streamReader.EndOfStream == false)
+                var buffer = await streamReader.ReadToEndAsync();
+
+                for (int i = 0; i < buffer.Length; i++)
                 {
-                    var character = (char)streamReader.Read();
+                    var character = buffer[i];
 
                     if (character == '{')
                     {
@@ -105,8 +107,10 @@ public class SDCPClient
                         {
                             // Add the closing '}'
                             responseBuilder.Append(character);
+                            var json = responseBuilder.ToString();
+                            responseBuilder.Clear(); // Clear before processing, in case the JSON parsing fails, we should still empty the response builder.
+
                             OnMessage(responseBuilder.ToString());
-                            responseBuilder.Clear();
                         }
                     }
                     else
@@ -223,6 +227,7 @@ public class SDCPClient
             CommandCodes.GetPrintHistoryList => SDCPJsonSerializer.Deserialize<HistoryListResponseParameter>(responseParameterNode),
             CommandCodes.GetFileList => SDCPJsonSerializer.Deserialize<FileListResponseParameter>(responseParameterNode),
             CommandCodes.SetVideoEnabled => SDCPJsonSerializer.Deserialize<SetVideoResponseParameter>(responseParameterNode),
+            CommandCodes.SetFanSpeed => SDCPJsonSerializer.Deserialize<AcknowledgeResponseParameter>(responseParameterNode),
             _ => null,
         };
 

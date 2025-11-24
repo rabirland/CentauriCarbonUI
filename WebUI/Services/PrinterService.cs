@@ -80,4 +80,14 @@ public class PrinterService
 
         await _printerClient.SendCommand(request);
     }
+
+    public async Task SetFanSpeed(uint modelFan, uint auxiliaryFan, uint caseFan)
+    {
+        var request = new CentauriCarbonCommand(
+            Guid.NewGuid().ToString(),
+            CommandCodes.SetFanSpeed,
+            new SetFanSpeedCommandParameter(modelFan, auxiliaryFan, caseFan));
+
+        await _printerClient.SendCommand(request);
+    }
 }

@@ -2,14 +2,12 @@
 
 public class SetFanSpeedCommandParameter
 {
-    public TargetFanSpeeds TargetFanSpeed { get; set; } = new();
+    public TargetFanSpeeds TargetFanSpeed { get; }
 
-    public class TargetFanSpeeds
+    public SetFanSpeedCommandParameter(uint modelFan, uint auxiliaryFan, uint boxFan)
     {
-        public int ModelFan { get; set; }
-
-        public int AuxiliaryFan { get; set; }
-
-        public int BoxFan { get; set; }
+        TargetFanSpeed = new(modelFan, auxiliaryFan, boxFan);
     }
+
+    public record TargetFanSpeeds(uint ModelFan, uint AuxiliaryFan, uint BoxFan);
 }
