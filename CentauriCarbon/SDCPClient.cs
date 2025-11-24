@@ -110,7 +110,7 @@ public class SDCPClient
                             var json = responseBuilder.ToString();
                             responseBuilder.Clear(); // Clear before processing, in case the JSON parsing fails, we should still empty the response builder.
 
-                            OnMessage(responseBuilder.ToString());
+                            OnMessage(json);
                         }
                     }
                     else
